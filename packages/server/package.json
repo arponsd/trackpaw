@@ -1,0 +1,80 @@
+{
+  "name": "@trackpaw/server",
+  "version": "0.1.0",
+  "description": "Trackpaw analytics server — ingestion API, query engine, and database adapters",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trackpaw/trackpaw.git",
+    "directory": "packages/server"
+  },
+  "homepage": "https://github.com/trackpaw/trackpaw/tree/main/packages/server#readme",
+  "bugs": "https://github.com/trackpaw/trackpaw/issues",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./adapters": {
+      "types": "./dist/adapters/index.d.ts",
+      "import": "./dist/adapters/index.mjs",
+      "require": "./dist/adapters/index.js"
+    }
+  },
+  "files": ["dist"],
+  "keywords": [
+    "analytics",
+    "server",
+    "self-hosted",
+    "ingestion",
+    "query-engine",
+    "postgres",
+    "sqlite"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:all-adapters": "vitest run --reporter=verbose",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@trackpaw/types": "workspace:*",
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/cors": "^2.8.0",
+    "@types/express": "^5.0.0",
+    "supertest": "^7.0.0",
+    "@types/supertest": "^6.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  },
+  "peerDependencies": {
+    "pg": ">=8.0.0",
+    "mysql2": ">=3.0.0",
+    "@clickhouse/client": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "pg": { "optional": true },
+    "mysql2": { "optional": true },
+    "@clickhouse/client": { "optional": true }
+  }
+}

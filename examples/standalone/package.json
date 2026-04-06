@@ -1,0 +1,15 @@
+{
+  "name": "trackpaw-standalone-demo",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Standalone Trackpaw demo with SQLite — one command to run",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node scripts/seed.js",
+    "demo": "node scripts/seed.js && node server.js"
+  },
+  "dependencies": {
+    "@trackpaw/server": "workspace:*",
+    "express": "^5.1.0"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "trackpaw-express-example",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Trackpaw Express.js integration example",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@trackpaw/server": "workspace:*",
+    "@trackpaw/tracker": "workspace:*",
+    "express": "^5.1.0"
+  }
+}

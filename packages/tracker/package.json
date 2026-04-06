@@ -1,0 +1,58 @@
+{
+  "name": "@trackpaw/tracker",
+  "version": "0.1.0",
+  "description": "Privacy-first analytics tracker SDK — zero dependencies, under 5KB gzipped",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trackpaw/trackpaw.git",
+    "directory": "packages/tracker"
+  },
+  "homepage": "https://github.com/trackpaw/trackpaw/tree/main/packages/tracker#readme",
+  "bugs": "https://github.com/trackpaw/trackpaw/issues",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "browser": "./dist/umd/trackpaw.min.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "analytics",
+    "tracking",
+    "privacy",
+    "self-hosted",
+    "mixpanel",
+    "amplitude",
+    "sdk"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "size": "node scripts/check-size.js",
+    "clean": "rm -rf dist .turbo"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  }
+}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing - Trackpaw Demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; color: #1e293b; }
+    h1 { color: #6366f1; }
+    .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .plan { border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; text-align: center; }
+    button { padding: 10px 20px; background: #6366f1; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
+    a { color: #6366f1; }
+  </style>
+</head>
+<body>
+  <h1>Pricing</h1>
+  <p><a href="/">Back to Home</a></p>
+
+  <div class="plans">
+    <div class="plan">
+      <h3>Free</h3>
+      <p>$0/month</p>
+      <button onclick="selectPlan('free', 0)">Select Free</button>
+    </div>
+    <div class="plan">
+      <h3>Pro</h3>
+      <p>$49/month</p>
+      <button onclick="selectPlan('pro', 49)">Select Pro</button>
+    </div>
+  </div>
+
+  <script>
+    function selectPlan(plan, price) {
+      fetch('/analytics/v1/events/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': 'demo-key' },
+        body: JSON.stringify({
+          batch: [{ event: 'Plan Selected', properties: { plan, price }, timestamp: new Date().toISOString(), anonymousId: 'demo-anon', sessionId: 'demo-session' }],
+          sentAt: new Date().toISOString(),
+        }),
+      });
+      alert(`Selected ${plan} plan!`);
+    }
+  </script>
+</body>
+</html>

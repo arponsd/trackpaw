@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trackpaw Express Demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; color: #1e293b; }
+    h1 { color: #6366f1; }
+    button { padding: 10px 20px; background: #6366f1; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; margin: 4px; }
+    button:hover { background: #4f46e5; }
+    a { color: #6366f1; }
+    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 12px 0; }
+    #log { font-family: monospace; font-size: 12px; background: #0f172a; color: #22c55e; padding: 12px; border-radius: 8px; max-height: 200px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>Trackpaw Demo</h1>
+  <p>This page demonstrates the <code>@trackpaw/tracker</code> SDK.</p>
+
+  <div class="card">
+    <h3>Track Custom Events</h3>
+    <button onclick="trackSignUp()">Sign Up</button>
+    <button onclick="trackPurchase()">Purchase</button>
+    <button onclick="trackFeature()">Use Feature</button>
+  </div>
+
+  <div class="card">
+    <h3>Identity</h3>
+    <button onclick="identifyUser()">Identify as Alice</button>
+    <button onclick="resetIdentity()">Reset</button>
+  </div>
+
+  <div class="card">
+    <h3>Navigation</h3>
+    <a href="/pricing">Go to Pricing Page</a>
+  </div>
+
+  <h3>Event Log</h3>
+  <div id="log"></div>
+
+  <script>
+    // Initialize the tracker
+    const trackpaw = {};
+
+    // Inline tracker initialization (simulates importing @trackpaw/tracker)
+    async function initTracker() {
+      const { Trackpaw } = await import('/analytics/tracker.min.js').catch(() => {
+        // Fallback: use fetch-based manual tracking
+        return { Trackpaw: null };
+      });
+
+      if (Trackpaw) {
+        window.tracker = Trackpaw.init({
+          endpoint: '/analytics',
+          apiKey: 'demo-key',
+          autoTrack: { pageViews: true },
+          debug: true,
+        });
+      } else {
+        // Simple fallback tracker
+        window.tracker = {
+          track: (event, props) => {
+            log(`[track] ${event} ${JSON.stringify(props || {})}`);
+            fetch('/analytics/v1/events/batch', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-API-Key': 'demo-key' },
+              body: JSON.stringify({
+                batch: [{ event, properties: props || {}, timestamp: new Date().toISOString(), anonymousId: 'demo-anon', sessionId: 'demo-session' }],
+                sentAt: new Date().toISOString(),
+              }),
+            });
+          },
+          identify: (userId, traits) => log(`[identify] ${userId} ${JSON.stringify(traits)}`),
+          page: (name) => log(`[page] ${name}`),
+          reset: () => log('[reset]'),
+        };
+      }
+    }
+
+    initTracker();
+
+    function log(msg) {
+      const el = document.getElementById('log');
+      el.textContent = `${new Date().toLocaleTimeString()} ${msg}\n${el.textContent}`;
+    }
+
+    function trackSignUp() {
+      window.tracker.track('Sign Up', { plan: 'free', source: 'demo' });
+      log('Tracked: Sign Up');
+    }
+
+    function trackPurchase() {
+      window.tracker.track('Purchase', { amount: 49.99, plan: 'pro' });
+      log('Tracked: Purchase');
+    }
+
+    function trackFeature() {
+      window.tracker.track('Feature Used', { feature: 'export', format: 'csv' });
+      log('Tracked: Feature Used');
+    }
+
+    function identifyUser() {
+      window.tracker.identify('user_alice', { name: 'Alice', email: 'alice@example.com', plan: 'pro' });
+      log('Identified: Alice');
+    }
+
+    function resetIdentity() {
+      window.tracker.reset();
+      log('Identity reset');
+    }
+  </script>
+</body>
+</html>

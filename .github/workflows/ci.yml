@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - name: Coverage (Node 20 only)
+        if: matrix.node == 20
+        run: |
+          cd packages/tracker && npx vitest run --coverage --reporter=verbose
+          cd ../server && npx vitest run --coverage --reporter=verbose
+          cd ../dashboard && npx vitest run --coverage --reporter=verbose
+
+  test-adapters:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: test_analytics
+          POSTGRES_USER: analytics
+          POSTGRES_PASSWORD: test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: test_analytics
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=5
+
+      clickhouse:
+        image: clickhouse/clickhouse-server:latest
+        ports: ['8123:8123', '9000:9000']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm --filter @trackpaw/server test:all-adapters
+        env:
+          TEST_PG_URL: postgresql://analytics:test@localhost:5432/test_analytics
+          TEST_MYSQL_HOST: localhost
+          TEST_MYSQL_PORT: 3306
+          TEST_MYSQL_DATABASE: test_analytics
+          TEST_MYSQL_USER: root
+          TEST_MYSQL_PASSWORD: test
+          TEST_CLICKHOUSE_URL: http://localhost:8123
+
+  bundle-size:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @trackpaw/tracker build
+      - run: pnpm --filter @trackpaw/tracker size

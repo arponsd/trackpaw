@@ -1,31 +1,31 @@
-<div align="center">
+<p align="center">
+  <img src="https://img.shields.io/badge/trackpaw-analytics-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMiAxMmgtNGwtMyA5TDkgM2wtMyA5SDIiLz48L3N2Zz4=" alt="Trackpaw" />
+</p>
 
-<img src="https://img.shields.io/badge/trackpaw-analytics-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMiAxMmgtNGwtMyA5TDkgM2wtMyA5SDIiLz48L3N2Zz4=" alt="Trackpaw" />
+<h1 align="center">Trackpaw</h1>
 
-# Trackpaw
+<p align="center">
+  <strong>Self-hosted, privacy-first analytics that runs entirely on your infrastructure.</strong>
+  <br />
+  Zero data leaves your servers. Ever.
+</p>
 
-**Self-hosted, privacy-first analytics that runs entirely on your infrastructure.**
-<br />
-Zero data leaves your servers. Ever.
+<p align="center">
+  <a href="#quick-start">Quick Start</a> &nbsp;&bull;&nbsp;
+  <a href="#packages">Packages</a> &nbsp;&bull;&nbsp;
+  <a href="#database-support">Databases</a> &nbsp;&bull;&nbsp;
+  <a href="#examples">Examples</a> &nbsp;&bull;&nbsp;
+  <a href="./CONTRIBUTING.md">Contributing</a> &nbsp;&bull;&nbsp;
+  <a href="./ROADMAP.md">Roadmap</a>
+</p>
 
-<br />
-
-[Quick Start](#quick-start) &nbsp;&bull;&nbsp;
-[Packages](#packages) &nbsp;&bull;&nbsp;
-[Databases](#database-support) &nbsp;&bull;&nbsp;
-[Examples](#examples) &nbsp;&bull;&nbsp;
-[Contributing](./CONTRIBUTING.md) &nbsp;&bull;&nbsp;
-[Roadmap](./ROADMAP.md)
-
-<br />
-
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
-[![Bundle Size](https://img.shields.io/badge/tracker%20size-%3C5KB%20gzip-blueviolet.svg)](./packages/tracker)
-[![Tests](https://img.shields.io/badge/tests-193%20passing-success.svg)](#development)
-[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org)
-
-</div>
+<p align="center">
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" /></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg" alt="Node" /></a>
+  <a href="./packages/tracker"><img src="https://img.shields.io/badge/tracker%20size-%3C5KB%20gzip-blueviolet.svg" alt="Bundle Size" /></a>
+  <a href="#development"><img src="https://img.shields.io/badge/tests-193%20passing-success.svg" alt="Tests" /></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-strict-blue.svg" alt="TypeScript" /></a>
+</p>
 
 ---
 

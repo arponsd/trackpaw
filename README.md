@@ -1,16 +1,57 @@
-# Trackpaw
+<p align="center">
+  <img src="https://img.shields.io/badge/trackpaw-analytics-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMiAxMmgtNGwtMyA5TDkgM2wtMyA5SDIiLz48L3N2Zz4=" alt="Trackpaw" />
+</p>
 
-> A drop-in, privacy-first analytics platform that runs entirely on your infrastructure. Zero data leaves your servers.
+<h1 align="center">Trackpaw</h1>
 
-Trackpaw is an open-source analytics SDK (similar to Mixpanel/Amplitude) distributed as npm packages. Install it, point it at your own database, and get a full analytics suite — event tracking, funnels, retention, user profiles, and a pre-built dashboard.
+<p align="center">
+  <strong>Self-hosted, privacy-first analytics that runs entirely on your infrastructure.</strong>
+  <br />
+  Zero data leaves your servers. Ever.
+</p>
+
+<p align="center">
+  <a href="#quick-start">Quick Start</a> &nbsp;&bull;&nbsp;
+  <a href="#packages">Packages</a> &nbsp;&bull;&nbsp;
+  <a href="#database-support">Databases</a> &nbsp;&bull;&nbsp;
+  <a href="#examples">Examples</a> &nbsp;&bull;&nbsp;
+  <a href="./CONTRIBUTING.md">Contributing</a> &nbsp;&bull;&nbsp;
+  <a href="./ROADMAP.md">Roadmap</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" />
+  <img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg" alt="Node" />
+  <img src="https://img.shields.io/badge/tracker%20size-%3C5KB%20gzip-blueviolet.svg" alt="Bundle Size" />
+  <img src="https://img.shields.io/badge/tests-193%20passing-success.svg" alt="Tests" />
+  <img src="https://img.shields.io/badge/TypeScript-strict-blue.svg" alt="TypeScript" />
+</p>
+
+---
+
+## Why Trackpaw?
+
+Most analytics tools (Mixpanel, Amplitude, Google Analytics) send your user data to third-party servers. **Trackpaw doesn't.** It's a complete analytics platform you install via npm and run on your own infrastructure.
+
+| | Traditional Analytics | Trackpaw |
+|---|---|---|
+| **Data ownership** | Their servers | Your servers |
+| **Privacy** | Trust their policy | You control everything |
+| **Cost** | Per-event pricing | Free (open source) |
+| **Setup** | Add a script tag | `npm install` + mount a route |
+| **Dashboard** | Their UI | Embeddable React component |
+
+---
 
 ## Packages
 
-| Package | Description | Size |
+| Package | What it does | Size |
 |---------|-------------|------|
-| [`@trackpaw/tracker`](./packages/tracker) | Client-side SDK for browser & Node.js | < 5KB gzipped |
-| [`@trackpaw/server`](./packages/server) | Ingestion API, query engine, DB adapters | - |
-| [`@trackpaw/dashboard`](./packages/dashboard) | Embeddable React analytics UI | - |
+| [`@trackpaw/tracker`](./packages/tracker) | Client-side SDK for browser & Node.js | **< 5KB** gzip |
+| [`@trackpaw/server`](./packages/server) | Ingestion API + query engine + DB adapters | — |
+| [`@trackpaw/dashboard`](./packages/dashboard) | Embeddable React analytics UI | — |
+
+---
 
 ## Quick Start
 
@@ -20,9 +61,10 @@ Trackpaw is an open-source analytics SDK (similar to Mixpanel/Amplitude) distrib
 npm install @trackpaw/tracker @trackpaw/server @trackpaw/dashboard
 ```
 
-### 2. Server Setup (Express)
+### 2. Set up the server
 
 ```typescript
+// server.ts
 import express from 'express';
 import { createAnalyticsServer, SQLiteAdapter } from '@trackpaw/server';
 
@@ -30,30 +72,39 @@ const app = express();
 
 const analytics = createAnalyticsServer({
   adapter: new SQLiteAdapter({ filename: './analytics.db' }),
-  apiKey: process.env.ANALYTICS_API_KEY,
+  apiKey: 'your-api-key',
+  cors: { origin: 'https://myapp.com' },
 });
 
-await analytics.migrate();
+await analytics.migrate();          // creates tables on first run
 app.use('/analytics', analytics.router);
 app.listen(3000);
 ```
 
-### 3. Client Setup (Browser)
+> **That's it.** No external services, no config files, no Docker required. SQLite works out of the box. Swap to Postgres/MySQL/ClickHouse when you need scale.
+
+### 3. Track events in the browser
 
 ```typescript
 import { Trackpaw } from '@trackpaw/tracker';
 
 const tracker = Trackpaw.init({
   endpoint: 'https://myapp.com/analytics',
-  apiKey: 'your-write-key',
+  apiKey: 'your-api-key',
   autoTrack: { pageViews: true },
 });
 
+// Identify users
 tracker.identify('user_123', { name: 'Alice', plan: 'pro' });
-tracker.track('Feature Used', { feature: 'export' });
+
+// Track custom events
+tracker.track('Feature Used', { feature: 'export', format: 'csv' });
+
+// Track page views manually (auto-tracking handles this by default)
+tracker.page('/dashboard');
 ```
 
-### 4. Dashboard
+### 4. Embed the dashboard
 
 ```tsx
 import { AnalyticsDashboard } from '@trackpaw/dashboard';
@@ -63,67 +114,193 @@ function AdminPage() {
     <AnalyticsDashboard
       endpoint="https://myapp.com/analytics"
       apiKey="your-read-key"
-      theme="light"
+      theme="light"                    // or "dark" or "system"
     />
   );
 }
 ```
 
-## Database Support
-
-| Database | Adapter | Best For |
-|----------|---------|----------|
-| SQLite | `SQLiteAdapter` | Development, small projects |
-| PostgreSQL | `PostgresAdapter` | Production (10K-1M events/day) |
-| MySQL | `MySQLAdapter` | Teams already running MySQL |
-| ClickHouse | `ClickHouseAdapter` | High volume (1M+ events/day) |
+---
 
 ## Features
 
-- **Event Tracking** — track custom events with properties
-- **User Identification** — link anonymous and identified users
-- **Trends** — event counts over time with group-by
-- **Funnels** — multi-step conversion analysis
-- **Retention** — cohort retention grids
-- **User Profiles** — traits, activity timeline, session history
-- **Privacy-First** — IP anonymization, PII scrubbing, consent mode, GDPR delete/export
-- **Embeddable Dashboard** — one React component for a full analytics UI
+### Tracker SDK
+- **Zero dependencies** — pure TypeScript, no bloat
+- **Under 5KB gzipped** — won't slow down your pages
+- **Auto-capture** — page views, clicks, form submissions (opt-in)
+- **Batched queue** — events buffered and sent efficiently
+- **Offline persistence** — events survive page reloads via localStorage
+- **Consent mode** — opt-in/opt-out, Do Not Track support
+- **Works everywhere** — browser (ESM/CJS/UMD) and Node.js
 
-## Core Principles
+### Server
+- **Event ingestion** — validates, enriches, and stores events
+- **Query engine** — trends, funnels, retention, segments, event stream, user list
+- **4 database adapters** — SQLite, PostgreSQL, MySQL, ClickHouse
+- **REST API** — 11 endpoints with auth, rate limiting, CORS
+- **Privacy built-in** — IP anonymization, PII scrubbing (hash or remove)
+- **GDPR ready** — one-call user deletion and data export
+- **Framework agnostic** — Express router (Fastify/Hono planned)
 
-1. **Customer-owned data** — all data stays on your infrastructure
-2. **Database-agnostic** — works with SQLite, Postgres, MySQL, ClickHouse
-3. **Zero runtime dependencies** — the tracker SDK has no external deps
-4. **Privacy-first defaults** — IP anonymization, consent mode, PII scrubbing
-5. **TypeScript-native** — full type safety across all packages
+### Dashboard
+- **One component** — `<AnalyticsDashboard />` gives you everything
+- **7 views** — Overview, Trends, Funnels, Retention, Event Stream, Users, User Profile
+- **Themeable** — light/dark/system, custom accent color and fonts
+- **Embeddable** — drop it into any React admin panel
+- **Individual exports** — use `<LineChart>`, `<FunnelChart>`, `<MetricCard>` independently
+
+---
+
+## Database Support
+
+Start with SQLite for development. Move to Postgres for production. Scale to ClickHouse when you need to.
+
+```typescript
+// Development — zero config
+new SQLiteAdapter({ filename: './analytics.db' })
+
+// Production — battle tested
+new PostgresAdapter({ connectionString: process.env.DATABASE_URL })
+
+// Scale — millions of events/day
+new ClickHouseAdapter({ url: 'http://localhost:8123' })
+
+// MySQL — if that's what you run
+new MySQLAdapter({ host: 'localhost', database: 'analytics', user: 'root', password: '' })
+```
+
+| Database | Best for | Events/day |
+|----------|----------|-----------|
+| **SQLite** | Development, small projects | < 10K |
+| **PostgreSQL** | Production workloads | 10K–1M |
+| **MySQL** | Teams already on MySQL | 10K–500K |
+| **ClickHouse** | High-volume analytics | 1M+ |
+
+All adapters implement the same interface — **switch databases without changing your application code.**
+
+---
+
+## REST API
+
+All endpoints are mounted under your chosen path (e.g., `/analytics`).
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/v1/health` | — | Health check |
+| `POST` | `/v1/events/batch` | write | Ingest events |
+| `POST` | `/v1/identify` | write | Identify user |
+| `POST` | `/v1/query` | read | Run analytics query |
+| `GET` | `/v1/events/stream` | read | Event stream |
+| `GET` | `/v1/users` | read | User list |
+| `GET` | `/v1/users/:id` | read | User profile |
+| `DELETE` | `/v1/users/:id` | admin | Delete user (GDPR) |
+| `GET` | `/v1/users/:id/export` | admin | Export user data |
+| `GET` | `/v1/metadata` | read | Event metadata |
+
+Supports **separate API keys** for write (tracker), read (dashboard), and admin (GDPR) operations.
+
+---
 
 ## Examples
 
-| Example | Description |
-|---------|-------------|
-| [`express-app`](./examples/express-app) | Express.js with tracker, server, and HTML demo pages |
-| [`nextjs-app`](./examples/nextjs-app) | Next.js App Router with embedded dashboard |
-| [`standalone`](./examples/standalone) | Zero-config server with SQLite and seed data |
+| Example | Description | Run it |
+|---------|-------------|--------|
+| [`express-app`](./examples/express-app) | Express.js + tracker + HTML demo pages | `cd examples/express-app && pnpm start` |
+| [`nextjs-app`](./examples/nextjs-app) | Next.js App Router + embedded dashboard | `cd examples/nextjs-app && pnpm dev` |
+| [`standalone`](./examples/standalone) | Zero-config server with seed data | `cd examples/standalone && pnpm demo` |
+
+---
+
+## Configuration
+
+### Server options
+
+```typescript
+createAnalyticsServer({
+  adapter: StorageAdapter,            // Required — database adapter
+
+  // Auth
+  apiKey: 'single-key',              // Simple mode: one key for everything
+  apiKeys: {                          // Multi-key mode: separate permissions
+    write: ['tracker-key'],
+    read: ['dashboard-key'],
+    admin: ['admin-key'],
+  },
+
+  // Privacy (all enabled by default)
+  privacy: {
+    ipAnonymization: true,            // Mask last IP octet
+    piiFields: ['email', 'phone'],    // Fields to hash or remove
+    piiAction: 'hash',                // 'hash' (SHA-256) or 'remove'
+  },
+
+  // Performance
+  rateLimit: { maxRequests: 100, windowMs: 60000 },
+  queryCache: { enabled: true, ttlSeconds: 60 },
+
+  // Hooks
+  hooks: {
+    beforeIngest: (events) => events,       // Transform events before storage
+    afterIngest: (events, result) => {},     // Side effects after storage
+    onError: (error, context) => {},         // Error handling
+  },
+});
+```
+
+### Tracker options
+
+```typescript
+Trackpaw.init({
+  endpoint: '/analytics',
+  apiKey: 'write-key',
+  flushInterval: 5000,               // Send events every 5s
+  flushQueueSize: 10,                // Or when 10 events queue up
+  persistence: 'localStorage',       // 'localStorage' | 'memory'
+  sessionTimeout: 1800000,           // 30 min session timeout
+  autoTrack: {
+    pageViews: true,                  // Auto-track page views
+    clicks: false,                    // Auto-track clicks (opt-in)
+    forms: false,                     // Auto-track form submits (opt-in)
+  },
+  ipAnonymization: true,
+  respectDoNotTrack: false,
+  defaultOptOut: false,               // true = opt-in consent mode
+  debug: false,                       // Log events to console
+});
+```
+
+---
 
 ## Tech Stack
 
-- **Language:** TypeScript (strict mode)
-- **Build:** Turborepo + tsup + Vitest
-- **Tracker:** Vanilla TS, zero deps, ESM + CJS + UMD
-- **Server:** Express with framework-agnostic core
-- **Dashboard:** React 18+, Recharts, TanStack Query
-- **Database:** Adapter pattern with 4 built-in adapters
+| Layer | Technology |
+|-------|-----------|
+| **Language** | TypeScript (strict mode) |
+| **Build** | Turborepo + tsup |
+| **Testing** | Vitest (193 tests) |
+| **Tracker** | Vanilla TS, zero deps |
+| **Server** | Express.js, framework-agnostic core |
+| **Dashboard** | React 18+, Recharts, TanStack Query |
+| **Databases** | Adapter pattern (SQLite, Postgres, MySQL, ClickHouse) |
+| **CI/CD** | GitHub Actions + Changesets |
+
+---
 
 ## Development
 
 ```bash
-pnpm install        # Install dependencies
-pnpm build          # Build all packages
-pnpm test           # Run all tests
-pnpm typecheck      # Type-check all packages
-pnpm lint           # Lint all packages
+pnpm install          # Install dependencies
+pnpm build            # Build all packages
+pnpm test             # Run all 193 tests
+pnpm typecheck        # Type-check all packages
+pnpm lint             # Lint all packages
+pnpm format           # Format with Prettier
 ```
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full development guide.
+
+---
 
 ## License
 
-MIT
+MIT &copy; [Trackpaw Contributors](./LICENSE)

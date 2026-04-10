@@ -41,6 +41,7 @@ Most analytics tools (Mixpanel, Amplitude, Google Analytics) send your user data
 
 | Package | What it does | Size |
 |---------|-------------|------|
+| [`@trackpaw/cli`](./packages/cli) | One-command setup: `npx @trackpaw/cli init` | **~8KB** |
 | [`@trackpaw/tracker`](./packages/tracker) | Client-side SDK for browser & Node.js | **< 5KB** gzip |
 | [`@trackpaw/server`](./packages/server) | Ingestion API + query engine + DB adapters | — |
 | [`@trackpaw/dashboard`](./packages/dashboard) | Embeddable React analytics UI | — |
@@ -49,13 +50,38 @@ Most analytics tools (Mixpanel, Amplitude, Google Analytics) send your user data
 
 ## Quick Start
 
-### 1. Install
+### One-command setup
+
+```bash
+npx @trackpaw/cli init
+```
+
+That's it. The CLI asks your framework, database, and product type — then scaffolds everything and installs dependencies.
+
+Or skip the prompts entirely:
+
+```bash
+npx @trackpaw/cli init --framework express --db sqlite --preset saas
+```
+
+**Presets:** `saas` | `ecommerce` | `media` — each comes with standard events out of the box.
+
+> Using an AI assistant? Just say: **"install trackpaw"** — it will find and run the CLI for you.
+
+---
+
+### Manual setup
+
+<details>
+<summary>If you prefer to set things up yourself</summary>
+
+#### 1. Install
 
 ```bash
 npm install @trackpaw/tracker @trackpaw/server @trackpaw/dashboard
 ```
 
-### 2. Set up the server
+#### 2. Set up the server
 
 ```typescript
 // server.ts
@@ -113,6 +139,8 @@ function AdminPage() {
   );
 }
 ```
+
+</details>
 
 ---
 

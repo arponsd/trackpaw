@@ -177,8 +177,8 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ path: s
           Readable.from(bodyText ? [Buffer.from(bodyText)] : []),
           {
             method: req.method,
-            url: '/v1' + subpath + url.search,
-            path: '/v1' + subpath,
+            url: subpath + url.search,
+            path: subpath,
             headers: {
               ...headers,
               ...(bodyText ? { 'content-length': String(Buffer.byteLength(bodyText)) } : {}),

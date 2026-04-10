@@ -1,6 +1,6 @@
 {
   "name": "@trackpaw/cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI tool to install and configure Trackpaw analytics in seconds",
   "license": "MIT",
   "repository": {
@@ -14,7 +14,7 @@
     "trackpaw": "./dist/index.js"
   },
   "main": "./dist/index.js",
-  "files": ["dist"],
+  "files": ["dist", "README.md"],
   "keywords": [
     "trackpaw",
     "analytics",

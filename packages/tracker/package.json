@@ -1,15 +1,15 @@
 {
   "name": "@trackpaw/tracker",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Privacy-first analytics tracker SDK — zero dependencies, under 5KB gzipped",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/trackpaw/trackpaw.git",
+    "url": "https://github.com/arponsd/trackpaw.git",
     "directory": "packages/tracker"
   },
-  "homepage": "https://github.com/trackpaw/trackpaw/tree/main/packages/tracker#readme",
-  "bugs": "https://github.com/trackpaw/trackpaw/issues",
+  "homepage": "https://github.com/arponsd/trackpaw/tree/main/packages/tracker#readme",
+  "bugs": "https://github.com/arponsd/trackpaw/issues",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",

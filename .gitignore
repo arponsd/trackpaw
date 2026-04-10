@@ -33,3 +33,6 @@ pnpm-debug.log*
 
 # Build artifacts
 *.tgz
+
+# Claude Code
+.claude/

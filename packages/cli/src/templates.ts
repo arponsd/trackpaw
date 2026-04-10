@@ -151,60 +151,81 @@ export async function ensureInitialized() {
 
 function nextjsRouteTemplate(): string {
   return `import { type NextRequest, NextResponse } from 'next/server';
+import { Readable } from 'node:stream';
 import { getAnalyticsServer, ensureInitialized } from '@/lib/analytics-server';
 
 async function handler(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
-  await ensureInitialized();
-  const analytics = getAnalyticsServer();
-  const { path } = await params;
-  const subpath = '/' + path.join('/');
+  try {
+    await ensureInitialized();
+    const analytics = getAnalyticsServer();
+    const { path } = await params;
+    const subpath = '/' + path.join('/');
 
-  // Forward the request to the analytics router
-  const url = new URL(req.url);
-  url.pathname = '/v1' + subpath;
+    const url = new URL(req.url);
+    const headers: Record<string, string> = {};
+    req.headers.forEach((value, key) => {
+      headers[key] = value;
+    });
 
-  const headers: Record<string, string> = {};
-  req.headers.forEach((value, key) => {
-    headers[key] = value;
-  });
+    // Read the raw body so Express's json() middleware can parse it from a stream
+    const bodyText = ['GET', 'HEAD'].includes(req.method) ? null : await req.text();
 
-  const body = ['GET', 'HEAD'].includes(req.method) ? undefined : await req.text();
+    const response = await new Promise<{ status: number; headers: Record<string, string>; body: string }>(
+      (resolve, reject) => {
+        // Build a real readable stream so Express body-parser works
+        const mockReq = Object.assign(
+          Readable.from(bodyText ? [Buffer.from(bodyText)] : []),
+          {
+            method: req.method,
+            url: '/v1' + subpath + url.search,
+            path: '/v1' + subpath,
+            headers: {
+              ...headers,
+              ...(bodyText ? { 'content-length': String(Buffer.byteLength(bodyText)) } : {}),
+            },
+            query: Object.fromEntries(url.searchParams),
+            ip: req.headers.get('x-forwarded-for') || '127.0.0.1',
+          }
+        );
 
-  const response = await new Promise<{ status: number; headers: Record<string, string>; body: string }>(
-    (resolve) => {
-      const mockRes = {
-        statusCode: 200,
-        headers: {} as Record<string, string>,
-        setHeader(key: string, value: string) { this.headers[key] = value; },
-        status(code: number) { this.statusCode = code; return this; },
-        json(data: unknown) {
-          resolve({ status: this.statusCode, headers: this.headers, body: JSON.stringify(data) });
-        },
-        send(data: string) {
-          resolve({ status: this.statusCode, headers: this.headers, body: data });
-        },
-      };
+        const mockRes = {
+          statusCode: 200,
+          headers: {} as Record<string, string>,
+          setHeader(key: string, value: string) { this.headers[key] = value; return this; },
+          status(code: number) { this.statusCode = code; return this; },
+          json(data: unknown) {
+            this.headers['content-type'] = 'application/json';
+            resolve({ status: this.statusCode, headers: this.headers, body: JSON.stringify(data) });
+          },
+          send(data: string) {
+            resolve({ status: this.statusCode, headers: this.headers, body: data });
+          },
+          end(data?: string) {
+            resolve({ status: this.statusCode, headers: this.headers, body: data || '' });
+          },
+        };
 
-      const mockReq = {
-        method: req.method,
-        url: url.pathname + url.search,
-        path: '/v1' + subpath,
-        headers,
-        body: body ? JSON.parse(body) : undefined,
-        query: Object.fromEntries(url.searchParams),
-        ip: req.headers.get('x-forwarded-for') || '127.0.0.1',
-      };
+        analytics.router(mockReq as any, mockRes as any, (err?: unknown) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve({ status: 404, headers: {}, body: JSON.stringify({ error: 'Not found' }) });
+          }
+        });
+      }
+    );
 
-      analytics.router(mockReq as any, mockRes as any, () => {
-        resolve({ status: 404, headers: {}, body: 'Not found' });
-      });
-    }
-  );
-
-  return new NextResponse(response.body, {
-    status: response.status,
-    headers: response.headers,
-  });
+    return new NextResponse(response.body, {
+      status: response.status,
+      headers: response.headers,
+    });
+  } catch (error) {
+    console.error('[trackpaw]', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }
 
 export const GET = handler;
